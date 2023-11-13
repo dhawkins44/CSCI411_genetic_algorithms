@@ -1,0 +1,173 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
+\usepackage{amsmath}
+
+\usetheme{default}
+\setbeamercovered{transparent}
+
+\title{Genetic Algorithms}
+\author{Daniel Hawkins}
+\date{\today}
+
+\lstset{
+  basicstyle=\tiny\ttfamily,
+  breaklines=true,
+  frame=single
+}
+
+\begin{document}
+
+\begin{frame}
+\tikz[overlay, remember picture] \node[anchor=south, opacity=0.1] at (current page.south) {\includegraphics[width=\paperwidth]{images/dna_binary.jpeg}};
+\titlepage
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}
+\frametitle{Genetic Algorithm: Overview}
+\begin{itemize}
+\item Formalized and popularized in the 1960s-70s by John Holland, inspired by natural selection.
+\item Combines Darwin's "survival of the fittest" with selection, crossover, and mutation to solve optimization and search problems.
+\item Used in diverse fields like finance, game design, robotics, and drug discovery.
+\item Highly adaptable to different types of problems and data.
+\item Starts with a population of solutions, iterating and improving over generations.
+\item Ability to search large solution spaces, avoiding local optima.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Genetic Algorithm Workflow}
+  \centering
+  \includegraphics[width=0.9\linewidth]{images/flow_diagram.png}
+  \end{frame}
+
+\begin{frame}{Genetic Algorithm Workflow}
+  \centering
+  \includegraphics[width=0.8\linewidth]{images/flow_chart_with_bit_list_maximization.png}
+  \end{frame}
+
+\section{Pseudocode}
+
+\begin{frame}[fragile]
+\frametitle{Initialize Population}
+\centering
+\includegraphics[width=.4\linewidth]{images/chromosomes.jpeg}
+\footnotesize
+\begin{verbatim}
+function initPopulation(popSize, chromLen)
+    population = []
+    for i = 1 to popSize
+        chrom = []
+        for j = 1 to chromLen
+            bit = randomChoice([0, 1])
+            chrom = chrom + [bit]
+        population = population + [chrom]
+    return population
+\end{verbatim}
+Runtime: O(popSize * chromLen)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Calculate Fitness}
+\centering
+\includegraphics[width=.7\linewidth]{images/fitness.jpeg}
+\begin{verbatim}
+function fitness(chrom)
+    return sum(chrom)
+\end{verbatim}
+Run Time: O(chromLen)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Parent Selection}
+\centering
+\includegraphics[width=.3\linewidth]{images/selection.jpg}
+\small
+
+\begin{lstlisting}[mathescape=true, basicstyle=\ttfamily, frame=none]
+function selectParents(population)
+    if length(population) == 1
+        return population[0], population[0]
+    elif length(population) == 2
+        return population[0], population[1]
+    parent1 = randomChoice(population[0:$\lfloor$length(population)/2$\rfloor$])
+    parent2 = randomChoice(population[0:$\lfloor$length(population)/2$\rfloor$])
+    return parent1, parent2
+\end{lstlisting}
+Run Time: O(1)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Crossover}
+\centering
+\includegraphics[width=.7\linewidth]{images/crossover.jpeg}
+\begin{verbatim}
+function crossover(parent1, parent2)
+    point = randomInt(1, length(parent1) - 1)
+    child1 = sublist(parent1, 0, point) + 
+             sublist(parent2, point, length(parent2))
+    child2 = sublist(parent2, 0, point) + 
+             sublist(parent1, point, length(parent1))
+    return child1, child2
+\end{verbatim}
+Run Time: O(chromLen)
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Mutation}
+\centering
+\includegraphics[width=.7\linewidth]{images/mutate.jpeg}
+\small
+\begin{verbatim}
+function mutate(chrom, mutRate)
+    newChrom = []
+    for i = 1 to length(chrom)
+        if randomFloat(0, 1) > mutRate
+            newChrom = newChrom + [chrom[i]]
+        else
+            if chrom[i] == 0
+                newChrom = newChrom + [1]
+            else
+                newChrom = newChrom + [0]
+\end{verbatim}
+Run Time: O(chromLen)
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Main Algorithm}
+  \small
+  \begin{verbatim}
+  function geneticAlgo(numGen, popSize, chromLen, mutRate)
+      population = initPopulation(popSize, chromLen)
+      for i = 1 to numGen
+          population = sort(population, key=fitness)
+          if fitness(population[0]) == chromLen
+            return population[0], i + 1
+          newPop = []
+          while length(newPop) < popSize
+              parent1, parent2 = selectParents(population)
+              child1, child2 = crossover(parent1, parent2)
+              child1 = mutate(child1, mutRate)
+              child2 = mutate(child2, mutRate)
+              newPop = newPop + [child1, child2]
+          population = newPop
+      return max(population, key=fitness)
+  \end{verbatim}
+  Run Time: O(numGen*popSize*chromLen+numGen*popSize*log(popSize))
+  \end{frame}
+
+\section{Conclusion}
+
+\begin{frame}
+\frametitle{Conclusion}
+\includegraphics[width=\linewidth]{images/evolution.jpeg}
+\centering
+What would you like to optimize through evolution?
+\end{frame}
+
+\end{document}
